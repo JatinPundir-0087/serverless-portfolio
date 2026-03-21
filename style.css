@@ -1,0 +1,32 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0f172a; /* Dark professional theme */
+    color: #f1f5f9;
+    text-align: center;
+    padding: 50px;
+}
+
+header h1 { color: #38bdf8; font-size: 3rem; }
+
+form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: 20px auto;
+    gap: 15px;
+}
+
+input, textarea, button {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    background-color: #38bdf8;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover { background-color: #0ea5e9; }
