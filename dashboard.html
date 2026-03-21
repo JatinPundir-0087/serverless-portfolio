@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Messages Dashboard | Jatin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container" style="max-width: 800px; margin: 50px auto;">
+        <h1>📩 Admin Dashboard</h1>
+        <p>Real-time messages from your portfolio.</p>
+        <hr>
+        <div id="messages-list">Loading your leads...</div>
+    </div>
+
+    <script>
+        async function fetchMessages() {
+            try {
+                const res = await fetch('/.netlify/functions/get-messages');
+                const data = await res.json();
+                const list = document.getElementById('messages-list');
+                
+                if (data.length === 0) {
+                    list.innerHTML = "<p>No messages yet!</p>";
+                    return;
+                }
+
+                list.innerHTML = data.map(m => `
+                    <div style="background: #f9f9f9; border-left: 5px solid #008ca3; margin: 15px 0; padding: 15px; border-radius: 5px; color: #333; text-align: left;">
+                        <strong style="font-size: 1.1em;">${m.name}</strong> 
+                        <span style="color: #666;">(${m.email})</span><br>
+                        <p style="margin: 10px 0;">${m.message}</p>
+                        <small style="color: #999;">${new Date(m.created_at).toLocaleString()}</small>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('messages-list').innerHTML = "Failed to load messages.";
+            }
+        }
+        fetchMessages();
+    </script>
+</body>
+</html>

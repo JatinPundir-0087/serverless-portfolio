@@ -19,8 +19,8 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
 
         // 3. Handle the response
         if (response.ok) {
-            alert("Success! Message sent to Supabase.");
-            document.getElementById('contact-form').reset(); // Clears the form
+            //Redirect to thank you page
+            window.location.href='thank-you.html';
         } else {
             const errorData = await response.json();
             alert("Error: " + errorData.error);
