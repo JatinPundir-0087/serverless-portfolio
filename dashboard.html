@@ -74,34 +74,6 @@ if (!adminKey) {
         }
     }
 
-async function fetchMessages() {
-    try {
-        const res = await fetch('/.netlify/functions/get-messages', {
-            headers: { 'x-admin-password': adminKey }
-        });
-
-        // --- PASTE THE CODE BELOW THIS LINE ---
-        const data = await res.json();
-        const list = document.getElementById('messages-list');
-
-        // This line updates your "Total Messages" number
-        document.getElementById('message-count').innerText = data.length; 
-
-        if (data.length === 0) {
-            list.innerHTML = "<p>No messages yet!</p>";
-            return;
-        }
-        // --- END OF PASTED CODE ---
-
-        // Your existing code that maps the messages goes here...
-        list.innerHTML = data.map(m => `
-            <div>...</div>
-        `).join('');
-
-    } catch (err) {
-        document.getElementById('messages-list').innerHTML = "Error loading messages.";
-    }
-}
 
 fetchMessages();
 function handleLogout() {
