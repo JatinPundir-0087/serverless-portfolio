@@ -5,16 +5,40 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container" style="max-width: 800px; margin: 50px auto;">
-        <h1>📩 Admin Dashboard</h1>
-        <p>Real-time messages from your portfolio.</p>
-        <hr>
-        <div id="messages-list">Loading your leads...</div>
+    <div class="container" style="max-width: 800px; margin: 50px auto; color: white;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0;">📩 Admin Dashboard</h1>
+        <button id="logoutbtn" class="admin-btn" onclick="handleLogout()" 
+                style="background: #ff4b2b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+            Logout
+        </button>
     </div>
 
+    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #444; text-align: left;">
+        <h3 style="margin: 0; font-size: 16px; color: #aaa;">Total Messages Captured: 
+            <span id="message-count" style="color: #008ca3; font-size: 26px; margin-left: 10px;">0</span>
+        </h3>
+    </div>
+
+    <p style="color: #ccc;">Real-time messages from your portfolio.</p>
+    <hr style="border: 0; border-top: 1px solid #444; margin-bottom: 30px;">
+
+    <div id="messages-list">Loading your leads...</div>
+</div>
+
    <script>
-    // 1. Prompt for password as soon as the page loads
-    const adminKey = prompt("Enter Admin Password to view messages:");
+   // 1. Check if the password is already saved in the browser
+let adminKey = localStorage.getItem('adminKey');
+
+// 2. If it's NOT saved, ask the user for it
+if (!adminKey) {
+    adminKey = prompt("Enter Admin Password to view messages:");
+    if (adminKey) {
+        // 3. Save it so you don't have to type it again on refresh
+        localStorage.setItem('adminKey', adminKey);
+    }
+}
 
     async function fetchMessages() {
         try {
@@ -30,6 +54,7 @@
 
             const data = await res.json();
             const list = document.getElementById('messages-list');
+            document.getElementById('message-count').innerText = data.length;
             
             if (data.length === 0) {
                 list.innerHTML = "<p>No messages yet!</p>";
@@ -49,26 +74,44 @@
         }
     }
 
-    async function deleteMessage(id) {
-        if (!confirm("Delete forever?")) return;
+async function fetchMessages() {
+    try {
+        const res = await fetch('/.netlify/functions/get-messages', {
+            headers: { 'x-admin-password': adminKey }
+        });
 
-        try {
-            const res = await fetch('/.netlify/functions/delete-message', {
-                method: 'DELETE',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    // ADDING THE SECURITY HEADER HERE TOO
-                    'x-admin-password': adminKey 
-                },
-                body: JSON.stringify({ id })
-            });
+        // --- PASTE THE CODE BELOW THIS LINE ---
+        const data = await res.json();
+        const list = document.getElementById('messages-list');
 
-            if (res.ok) { fetchMessages(); } 
-            else { alert("Delete failed. Check password."); }
-        } catch (err) { console.error(err); }
+        // This line updates your "Total Messages" number
+        document.getElementById('message-count').innerText = data.length; 
+
+        if (data.length === 0) {
+            list.innerHTML = "<p>No messages yet!</p>";
+            return;
+        }
+        // --- END OF PASTED CODE ---
+
+        // Your existing code that maps the messages goes here...
+        list.innerHTML = data.map(m => `
+            <div>...</div>
+        `).join('');
+
+    } catch (err) {
+        document.getElementById('messages-list').innerHTML = "Error loading messages.";
     }
+}
 
-    fetchMessages();
+fetchMessages();
+function handleLogout() {
+    localStorage.clear(); 
+    alert("Session ended. Redirecting...");
+    window.location.href = "index.html";
+   
+    
+}
+
 </script>
 </body>
 </html>

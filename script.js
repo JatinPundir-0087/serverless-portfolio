@@ -25,6 +25,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
             const errorData = await response.json();
             alert("Error: " + errorData.error);
         }
+        
     } catch (err) {
         console.error("Fetch error:", err);
         alert("Failed to connect to the server.");
