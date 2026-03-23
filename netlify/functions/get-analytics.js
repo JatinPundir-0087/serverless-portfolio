@@ -1,12 +1,26 @@
-// We will use a simple DynamoDB "UpdateItem" here later.
-// For now, let's get the UI ready.
-exports.handler = async (event) => {
-    // This is a placeholder that we will connect to your DB next
-    const mockVisits = 124; 
+const { createClient } = require('@supabase/supabase-js');
 
-    return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ totalVisits: mockVisits })
-    };
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+
+exports.handler = async (event) => {
+    try {
+        // This calls the 'increment_visits' function you made in Supabase
+        const { data, error } = await supabase.rpc('increment_visits');
+
+        if (error) throw error;
+
+        return {
+            statusCode: 200,
+            headers: { 
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*" 
+            },
+            body: JSON.stringify({ totalVisits: data })
+        };
+    } catch (error) {
+        return { 
+            statusCode: 500, 
+            body: JSON.stringify({ error: error.message }) 
+        };
+    }
 };
