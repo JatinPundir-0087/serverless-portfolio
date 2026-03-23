@@ -9,10 +9,22 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1 style="margin: 0;">📩 Admin Dashboard</h1>
-        <button id="logoutbtn" class="admin-btn" onclick="handleLogout()" 
-                style="background: #ff4b2b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-            Logout
-        </button>
+       </button>
+</div>
+
+<div style="display: flex; gap: 20px; margin-bottom: 30px;">
+    <div style="flex: 1; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; border: 1px solid #444;">
+        <h3 style="margin: 0; font-size: 14px; color: #aaa;">Total Messages</h3>
+        <span id="message-count" style="color: #008ca3; font-size: 26px; font-weight: bold;">0</span>
+    </div>
+
+    <div style="flex: 1; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; border: 1px solid #444;">
+        <h3 style="margin: 0; font-size: 14px; color: #aaa;">Total Site Visits</h3>
+        <span id="visitor-count" style="color: #f39c12; font-size: 26px; font-weight: bold;">Loading...</span>
+    </div>
+</div>
+
+<p style="color: #ccc;">Real-time messages from your portfolio.</p>
     </div>
 
     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #444; text-align: left;">
@@ -37,49 +49,54 @@ if (!adminKey) {
     if (adminKey) {
         // 3. Save it so you don't have to type it again on refresh
         localStorage.setItem('adminKey', adminKey);
+        
     }
 }
 
-    async function fetchMessages() {
-        try {
-            const res = await fetch('/.netlify/functions/get-messages', {
-                // ADDING THE SECURITY HEADER HERE
-                headers: { 'x-admin-password': adminKey }
-            });
-            
-            if (res.status === 401) {
-                document.getElementById('messages-list').innerHTML = "❌ Access Denied: Incorrect Password.";
-                return;
-            }
+  async function fetchMessages() {
+    try {
+        const res = await fetch('/.netlify/functions/get-messages', {
+            headers: { 'x-admin-password': adminKey }
+        });
 
-            const data = await res.json();
-            const list = document.getElementById('messages-list');
-            document.getElementById('message-count').innerText = data.length;
-            
-            if (data.length === 0) {
-                list.innerHTML = "<p>No messages yet!</p>";
-                return;
-            }
+        const data = await res.json(); // THIS IS THE ONLY ONE YOU NEED
+        const list = document.getElementById('messages-list');
+        
+        // Update Message Count
+        document.getElementById('message-count').innerText = data.length;
 
-            list.innerHTML = data.map(m => `
-                <div style="background: #fff; border: 1px solid #ddd; border-left: 5px solid #008ca3; margin: 15px 0; padding: 15px; border-radius: 5px; position: relative; text-align: left; color: #333;">
-                    <button onclick="deleteMessage(${m.id})" style="position: absolute; right: 15px; top: 15px; background: #ff4d4d; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 5px 10px; font-size: 12px;">Delete</button>
-                    <strong>${m.name}</strong> (${m.email})<br>
-                    <p>${m.message}</p>
-                    <small>${new Date(m.created_at).toLocaleString()}</small>
-                </div>
-            `).join('');
-        } catch (err) {
-            document.getElementById('messages-list').innerHTML = "⚠️ Error loading messages.";
+        // --- VISITOR ANALYTICS ---
+        const analyticsRes = await fetch('/.netlify/functions/get-analytics');
+        const analyticsData = await analyticsRes.json();
+        document.getElementById('visitor-count').innerText = analyticsData.totalVisits;
+
+        // Handle empty state
+        if (data.length === 0) {
+            list.innerHTML = "<p>No messages yet!</p>";
+            return;
         }
-    }
 
+        // Map the messages
+        list.innerHTML = data.map(m => `
+            <div style="...">
+                <button onclick="deleteMessage('${m.id}')" style="...">Delete</button>
+                <strong>${m.name}</strong> (${m.email})<br>
+                <p>${m.message}</p>
+                <small>${new Date(m.created_at).toLocaleString()}</small>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        document.getElementById('messages-list').innerHTML = "⚠️ Error loading messages.";
+    }
+}
 
 fetchMessages();
 function handleLogout() {
     localStorage.clear(); 
     alert("Session ended. Redirecting...");
     window.location.href = "index.html";
+    
    
     
 }

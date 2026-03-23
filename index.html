@@ -9,7 +9,7 @@
 <body>
     <header>
         <h1>Jatin Pundir</h1>
-        <p>B.Tech CSE Student @ DIT University</p>
+        <p>B.Tech CSE Student</p>
     </header>
 
     <section id="about">
@@ -27,6 +27,17 @@
         </form>
     </section>
 
-    <script src="script.js"></script>
+    <script src="script.js">
+        
+    // This silently calls your function to add +1 to the database 
+    // whenever someone lands on your homepage
+    window.addEventListener('load', () => {
+        fetch('/.netlify/functions/get-analytics')
+            .then(res => res.json())
+            .then(data => console.log('Visit tracked!'))
+            .catch(err => console.error('Analytics error:', err));
+    });
+
+    </script>
 </body>
 </html>
